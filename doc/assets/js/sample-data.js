@@ -10,14 +10,27 @@ doIndex = function(progressFn) {
     var url = window.ES_URL + "/test/test/" + i;
 
     if (i < sampleData.length) {
-      $.post(url, JSON.stringify(sampleData[i]), function(result) {
-        progressFn && progressFn(i, sampleData.length);
-        i++;
-        _doIndex(progressFn);
+      $.post({
+        url: url,
+        data: JSON.stringify(sampleData[i]),
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Basic " + btoa(window.ES_USERNAME + ":" + window.ES_PASSWORD));
+        },
+        success: function(result) {
+          progressFn && progressFn(i, sampleData.length);
+          i++;
+          _doIndex(progressFn);
+        }
       });
     } else {
-      $.post(window.ES_URL + "/_flush", function(result) {
-        progressFn && progressFn(i, sampleData.length);
+      $.post({
+        url: window.ES_URL + "/_flush",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Basic " + btoa(window.ES_USERNAME + ":" + window.ES_PASSWORD));
+        },
+        success: function(result) {
+          progressFn && progressFn(i, sampleData.length);
+        }
       });
     }
   }
